@@ -2,36 +2,73 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
+import { generateFilmPlanAction } from "../actions"; // Import de l'action serveur
 
-// Composant qui lit les paramètres de recherche (le synopsis)
+// Définition du type des données attendues
+type FilmData = {
+  characters: { name: string; role: string; desc: string }[];
+  storytelling: string;
+  scriptPlan: string[];
+};
+
 function PlanContent() {
   const searchParams = useSearchParams();
   const synopsis = searchParams.get("synopsis");
 
-  // Données simulées (Mock) en attendant l'intégration API
-  const [data] = useState({
-    characters: [
-      { name: "Alex", role: "Protagoniste", desc: "Un jeune réalisateur ambitieux qui cherche l'inspiration dans les rues de Paris." },
-      { name: "Léna", role: "Antagoniste", desc: "Une critique de cinéma impitoyable qui détient le pouvoir de lancer ou briser une carrière." },
-      { name: "Marc", role: "Soutien", desc: "Le meilleur ami fidèle, technicien lumière, toujours pragmatique." }
-    ],
-    storytelling: "C'est l'histoire d'une confrontation entre l'art pur et la réalité commerciale. Alex découvre un vieux manuscrit qui pourrait changer l'histoire du cinéma, mais Léna fera tout pour que ce secret reste enfoui. Une course contre la montre s'engage à travers les quartiers historiques...",
-    scriptPlan: [
-      "1. INT. CHAMBRE ALEX - JOUR : Alex découvre le manuscrit caché dans une brocante.",
-      "2. EXT. CAFÉ PARISIEN - JOUR : Il en parle à Marc, qui est sceptique.",
-      "3. INT. BUREAU LÉNA - SOIR : Léna apprend l'existence du manuscrit.",
-      "4. EXT. RUES DE NUIT - NUIT : Alex se sent suivi."
-    ]
-  });
+  const [data, setData] = useState<FilmData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (!synopsis) return;
+
+    // C'est ici que la magie opère : on appelle l'IA
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Appel à la fonction définie dans actions.ts
+        const result = await generateFilmPlanAction(synopsis);
+        setData(result);
+      } catch (err) {
+        console.error("Erreur lors de la génération :", err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [synopsis]);
+
+  // Affichage pendant le chargement
+  if (loading) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center space-y-4 bg-zinc-50 dark:bg-black text-black dark:text-white">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-zinc-300 border-t-black dark:border-zinc-700 dark:border-t-white"></div>
+        <p className="animate-pulse text-lg font-medium">Gemini 1.5 Pro écrit votre scénario...</p>
+      </div>
+    );
+  }
+
+  // Gestion d'erreur
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black text-red-500">
+        Une erreur est survenue lors de la génération. Vérifiez votre clé API.
+      </div>
+    );
+  }
+
+  if (!data) return null;
 
   return (
     <div className="min-h-screen bg-zinc-50 p-6 dark:bg-black text-zinc-900 dark:text-zinc-100 font-sans">
       <div className="mx-auto max-w-4xl space-y-12 py-10">
         
-        {/* En-tête avec rappel du synopsis */}
+        {/* En-tête */}
         <header className="space-y-4 text-center sm:text-left">
-          <div className="inline-block rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-            Généré avec Gemini 3 Pro
+          <div className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
+            Généré avec Gemini 1.5 Pro
           </div>
           <h1 className="text-3xl font-bold sm:text-4xl">Plan du Film</h1>
           <div className="rounded-xl bg-white p-4 shadow-sm border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800">
@@ -42,7 +79,7 @@ function PlanContent() {
 
         {/* Section 1 : Personnages */}
         <section className="space-y-6">
-          <h2 className="text-2xl font-bold border-b border-zinc-200 pb-2 dark:border-zinc-800">Personnages Principaux</h2>
+          <h2 className="text-2xl font-bold border-b border-zinc-200 pb-2 dark:border-zinc-800">Casting Principal</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {data.characters.map((char, i) => (
               <div key={i} className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
@@ -73,7 +110,7 @@ function PlanContent() {
 
         {/* Section 3 : Plan de Script */}
         <section className="space-y-6">
-          <h2 className="text-2xl font-bold border-b border-zinc-200 pb-2 dark:border-zinc-800">Séquencier (Plan de Script)</h2>
+          <h2 className="text-2xl font-bold border-b border-zinc-200 pb-2 dark:border-zinc-800">Séquencier</h2>
           <ul className="space-y-4">
             {data.scriptPlan.map((scene, i) => (
               <li key={i} className="group flex items-start gap-4 rounded-xl border border-zinc-100 bg-white p-5 shadow-sm transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-600">
@@ -90,7 +127,6 @@ function PlanContent() {
   );
 }
 
-// Composant principal qui enveloppe le contenu dans une Suspense boundary (requis par Next.js pour useSearchParams)
 export default function PlanPage() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center">Chargement...</div>}>
