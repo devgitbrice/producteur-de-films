@@ -10,8 +10,8 @@ const google = createGoogleGenerativeAI({
 });
 
 export async function generateFilmPlanAction(synopsis: string) {
-  // On utilise Gemini 1.5 Pro pour la meilleure qualité créative
-  const model = google("gemini-1.5-pro-latest");
+  // On utilise Gemini 3 Pro Preview pour la meilleure qualité créative
+  const model = google("gemini-3-pro-preview");
 
   const schema = z.object({
     characters: z.array(

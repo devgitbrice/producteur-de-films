@@ -45,7 +45,7 @@ function PlanContent() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center space-y-4 bg-zinc-50 dark:bg-black text-black dark:text-white">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-zinc-300 border-t-black dark:border-zinc-700 dark:border-t-white"></div>
-        <p className="animate-pulse text-lg font-medium">Gemini 1.5 Pro écrit votre scénario...</p>
+        <p className="animate-pulse text-lg font-medium">Gemini 3 Pro Preview écrit votre scénario...</p>
       </div>
     );
   }
@@ -68,7 +68,7 @@ function PlanContent() {
         {/* En-tête */}
         <header className="space-y-4 text-center sm:text-left">
           <div className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
-            Généré avec Gemini 1.5 Pro
+            Généré avec Gemini 3 Pro Preview
           </div>
           <h1 className="text-3xl font-bold sm:text-4xl">Plan du Film</h1>
           <div className="rounded-xl bg-white p-4 shadow-sm border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800">
