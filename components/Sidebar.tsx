@@ -51,7 +51,7 @@ export default function Sidebar({
 
   const loadProjects = async () => {
     const { data } = await supabase
-      .from("projects")
+      .from("films_projects")
       .select("id, title, project_type, updated_at")
       .order("updated_at", { ascending: false });
     if (data) setProjects(data);
