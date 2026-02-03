@@ -33,7 +33,7 @@ export async function createProject(projectType: ProjectType) {
   if (!user) throw new Error("Non authentifié");
 
   const { data, error } = await supabase
-    .from("projects")
+    .from("films_projects")
     .insert({
       user_id: user.id,
       title: "Nouveau projet",
@@ -49,7 +49,7 @@ export async function createProject(projectType: ProjectType) {
 export async function getProject(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("projects")
+    .from("films_projects")
     .select("*")
     .eq("id", id)
     .single();
@@ -69,7 +69,7 @@ export async function updateProject(
 ) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("projects")
+    .from("films_projects")
     .update({ ...updates, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select()
@@ -81,14 +81,14 @@ export async function updateProject(
 
 export async function deleteProject(id: string) {
   const supabase = await createClient();
-  const { error } = await supabase.from("projects").delete().eq("id", id);
+  const { error } = await supabase.from("films_projects").delete().eq("id", id);
   if (error) throw error;
 }
 
 export async function getProjects() {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("projects")
+    .from("films_projects")
     .select("*")
     .order("updated_at", { ascending: false });
 
